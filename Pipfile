@@ -8,6 +8,11 @@ fastapi = "*"
 uvicorn = "*"
 sqlalchemy = {extras = ["asyncio"], version = "*"}
 alembic = "*"
+email-validator = "*"
+ujson = "*"
+requests = "*"
+jinja2 = "*"
+itsdangerous = "*"
 
 [dev-packages]
 
