@@ -4,17 +4,23 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "*"
-uvicorn = "*"
-sqlalchemy = {extras = ["asyncio"], version = "*"}
-alembic = "*"
-email-validator = "*"
-ujson = "*"
-requests = "*"
-jinja2 = "*"
-itsdangerous = "*"
+fastapi = "==0.78.0"
+uvicorn = "==0.17.6"
+sqlalchemy = {extras = ["asyncio"], version = "==1.4.37"}
+alembic = "==1.8.0"
+email-validator = "==1.2.1"
+ujson = "==5.3.0"
+requests = "==2.28.0"
+jinja2 = "==3.1.2"
+itsdangerous = "==2.1.2"
 
 [dev-packages]
+flake8 = "*"
+mypy = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.10"
+
+[pipenv]
+allow_prereleases = true
