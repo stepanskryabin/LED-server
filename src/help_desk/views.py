@@ -2,7 +2,7 @@ import ujson
 from sqlalchemy.exc import NoResultFound
 
 from src.db.worker import DBWorker
-from src.help_desk.api.model import SupportForm
+from src.schemas.model import SupportForm
 
 db = DBWorker()
 db.connect()
@@ -11,7 +11,7 @@ db.connect()
 async def get_support_page(_input: int):
     try:
         dbquery = db.get_by_id(_input)
-    except NoResultFound as err:
+    except NoResultFound:
         dbquery = "Blank datatase"
 
     return {"result": dbquery}
