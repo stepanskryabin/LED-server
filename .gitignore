@@ -134,3 +134,6 @@ dmypy.json
 #VSCode
 .vscode/
 *.code-workspace
+
+# Local database
+db.sqlite
