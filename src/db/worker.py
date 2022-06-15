@@ -1,47 +1,50 @@
 import time
 
-from sqlalchemy import create_engine
-from src.db.models import Base
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlmodel import create_engine
+from sqlmodel import select
+from sqlmodel import Session
+from sqlmodel import SQLModel
 
 from src.db.models import SupportType
 
 
 class DBWorker:
     def __init__(self,
-                 db_name: str = '/:memory:',
+                 db_name: str = 'db.sqlite',
                  engine: str = 'sqlite',
-                 _echo: bool = False):
-        self.database = "".join((engine, "://", db_name))
-        self.engine = create_engine(self.database,
-                                    echo=_echo,
-                                    future=True)
-        self.base = Base()
-        self.session = Session(self.engine)
+                 _echo: bool = False,
+                 _check_same_thread: bool = False):
+        self.uri = "".join((engine, ":///", db_name))
+        self._connect_args = {"check_same_thread": _check_same_thread}
+        self._engine = create_engine(self.uri,
+                                     echo=_echo,
+                                     connect_args=self._connect_args)
+        self._session = Session(self._engine)
+        self._sql = SQLModel.metadata
 
     def connect(self):
-        self._create_db()
-        self._create_table()
+        self._sql.create_all(self._engine)
 
-    def _create_db(self):
-        self.base.metadata.create_all(self.engine)
+    def disconnect(self):
+        self._session.close_all()
 
-    def _create_table(self):
-        with self.session as session:
-            user_help_one = SupportType(user_name="Test1",
-                                        date_time=int(time.time()),
-                                        time_zone='Europe/Moscow',
-                                        email='test@test.com',
-                                        message="Help me, Obi-Wan Kenobi!",
-                                        importance=1)
-            session.add_all([user_help_one])
+    def create_record(self):
+        with self._session as session:
+            statment = SupportType(user_name="Test1",
+                                   date_time=int(time.time()),
+                                   time_zone='Europe/Moscow',
+                                   email='test@test.com',
+                                   message="Help me, Obi-Wan Kenobi!",
+                                   importance=1)
+            session.add(statment)
             session.commit()
+            session.refresh(statment)
+            session.close()
 
     def get_by_id(self,
                   _id: int):
-        stmt = select(SupportType).where(SupportType.id.is_(_id))
-        return self.session.scalars(stmt).one()
+        statment = select(SupportType).where(SupportType.id == _id)
+        return self._session.exec(statment).one()
 
     def add(self,
             user_name: str,
@@ -56,8 +59,10 @@ class DBWorker:
                           email=email,
                           message=message,
                           importance=importance)
-        self.session.add(row)
-        self.session.commit()
+        with self._session as session:
+            session.add(row)
+
+        self._session.commit()
 
     def __del__(self):
-        self.session.close()
+        self._session.close()

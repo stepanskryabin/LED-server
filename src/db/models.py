@@ -1,22 +1,15 @@
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy.orm import declarative_base
+from typing import Optional
+
+from sqlmodel import Field
+from sqlmodel import SQLModel
 
 
-Base = declarative_base()
+class SupportType(SQLModel, table=True):
 
-
-class SupportType(Base):
-    __tablename__ = "Type of request for support"
-
-    id = Column(Integer, primary_key=True)
-    user_name = Column(String)
-    date_time = Column(Integer)
-    time_zone = Column(String)
-    email = Column(String)
-    message = Column(String)
-    importance = Column(Integer)
-
-    def __repr__(self):
-        return f"SupportType(id={self.id}, user={self.user_name})"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_name: str = Field(index=True)
+    date_time: int
+    time_zone: str
+    email: str
+    message: str
+    importance: int
