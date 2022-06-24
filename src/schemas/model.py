@@ -8,3 +8,13 @@ class SupportForm(BaseModel):
     email: str
     message: str
     importance: int
+
+
+class UserList(BaseModel):
+    name: str
+    login: str
+    password: str
+    module_acl: str
+    group_name: str
+    is_deleted: bool
+    is_activated: bool

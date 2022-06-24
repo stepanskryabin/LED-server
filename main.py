@@ -1,23 +1,14 @@
 from enum import Enum
-from typing import Optional
 
 from fastapi import FastAPI
-from pydantic import BaseModel
 
 from src.db.worker import DBWorker
+from src.schemas.model import UserList
+from src.schemas.model import SupportForm
 
 app = FastAPI()
 
 db = DBWorker()
-
-
-class Item(BaseModel):
-    user_name: str
-    date_time: int
-    time_zone: str
-    email: str
-    message: str
-    importance: int = 0
 
 
 class Model(str, Enum):
@@ -53,8 +44,20 @@ async def signin():
     return {"Sign In": "not implemented"}
 
 
+@app.get("/user")
+async def userlist(username):
+    result = db.get_user_by_name(username)
+    return {"result": result}
+
+
+@app.post("/user")
+async def add_user(item: UserList):
+    db.add_user(item)
+    return {"result": "OK"}
+
+
 @app.post("/support/")
-async def post_support(item: Item):
+async def post_support(item: SupportForm):
     db.add(user_name=item.user_name,
            date_time=item.date_time,
            time_zone=item.time_zone,

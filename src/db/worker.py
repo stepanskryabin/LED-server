@@ -1,3 +1,4 @@
+from collections import UserList
 import time
 
 from sqlmodel import create_engine
@@ -6,6 +7,8 @@ from sqlmodel import Session
 from sqlmodel import SQLModel
 
 from src.db.models import SupportType
+from src.db.models import UserAccount
+from src.schemas.model import UserList
 
 
 class DBWorker:
@@ -30,20 +33,34 @@ class DBWorker:
 
     def create_record(self):
         with self._session as session:
-            statment = SupportType(user_name="Test1",
-                                   date_time=int(time.time()),
-                                   time_zone='Europe/Moscow',
-                                   email='test@test.com',
-                                   message="Help me, Obi-Wan Kenobi!",
-                                   importance=1)
-            session.add(statment)
+            add_support = SupportType(user_name="Test1",
+                                      date_time=int(time.time()),
+                                      time_zone='Europe/Moscow',
+                                      email='test@test.com',
+                                      message="Help me, Obi-Wan Kenobi!",
+                                      importance=1)
+            add_user = UserAccount(name="Peter",
+                                   login="Peter The Great",
+                                   password="IMGREAT",
+                                   module_acl='Russia',
+                                   group_name='tsar',
+                                   is_deleted=False,
+                                   is_activated=True)
+            session.add(add_support)
+            session.add(add_user)
             session.commit()
-            session.refresh(statment)
+            session.refresh(add_support)
+            session.refresh(add_user)
             session.close()
 
     def get_by_id(self,
                   _id: int):
         statment = select(SupportType).where(SupportType.id == _id)
+        return self._session.exec(statment).one()
+
+    def get_user_by_name(self,
+                         name: str):
+        statment = select(UserAccount).where(UserAccount.name == name)
         return self._session.exec(statment).one()
 
     def add(self,
@@ -61,7 +78,19 @@ class DBWorker:
                           importance=importance)
         with self._session as session:
             session.add(row)
+        self._session.commit()
 
+    def add_user(self,
+                 user: UserList):
+        user_account = UserAccount(name=user.name,
+                                   login=user.login,
+                                   password=user.password,
+                                   module_acl=user.module_acl,
+                                   group_name=user.group_name,
+                                   is_deleted=user.is_deleted,
+                                   is_activated=user.is_activated)
+        with self._session as session:
+            session.add(user_account)
         self._session.commit()
 
     def __del__(self):
