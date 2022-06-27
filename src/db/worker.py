@@ -1,14 +1,15 @@
-from collections import UserList
+import random
 import time
 
 from sqlmodel import create_engine
 from sqlmodel import select
 from sqlmodel import Session
 from sqlmodel import SQLModel
+from sqlalchemy.exc import NoResultFound
 
 from src.db.models import SupportType
 from src.db.models import UserAccount
-from src.schemas.model import UserList
+from src.schemas.model import UserListIn
 
 
 class DBWorker:
@@ -33,13 +34,15 @@ class DBWorker:
 
     def create_record(self):
         with self._session as session:
-            add_support = SupportType(user_name="Test1",
+            add_support = SupportType(user_name="".join(("Test1",
+                                                         str(random.randint(0, 1000)))),
                                       date_time=int(time.time()),
                                       time_zone='Europe/Moscow',
                                       email='test@test.com',
                                       message="Help me, Obi-Wan Kenobi!",
                                       importance=1)
-            add_user = UserAccount(name="Peter",
+            add_user = UserAccount(name="".join(("Peter",
+                                                  str(random.randint(0, 1000)))),
                                    login="Peter The Great",
                                    password="IMGREAT",
                                    module_acl='Russia',
@@ -61,7 +64,12 @@ class DBWorker:
     def get_user_by_name(self,
                          name: str):
         statment = select(UserAccount).where(UserAccount.name == name)
-        return self._session.exec(statment).one()
+        try:
+            dbquery = self._session.exec(statment).one()
+        except NoResultFound:
+            return None
+        else:
+            return dbquery
 
     def add(self,
             user_name: str,
@@ -81,7 +89,7 @@ class DBWorker:
         self._session.commit()
 
     def add_user(self,
-                 user: UserList):
+                 user: UserListIn):
         user_account = UserAccount(name=user.name,
                                    login=user.login,
                                    password=user.password,
