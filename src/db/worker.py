@@ -7,8 +7,8 @@ from sqlmodel import SQLModel
 from sqlalchemy.exc import NoResultFound
 
 from src.db.models import UserAccount
-from src.schemas.schemas import UserListIn
-from src.schemas.schemas import UserListOut
+from src.schemas.schemas import UserRegister
+from src.schemas.schemas import UserResponse
 
 
 class DBWorker:
@@ -36,6 +36,7 @@ class DBWorker:
             user = UserAccount(name="Peter",
                                login="".join(("Peter",
                                              str(random.randint(0, 1000)))),
+                               email='peter@tsar.rus',
                                password='123456',
                                is_deleted=False,
                                is_activated=True,
@@ -47,7 +48,7 @@ class DBWorker:
 
     def get_user(self,
                  _id: int = None,
-                 name: str = None) -> UserListOut:
+                 name: str = None) -> UserResponse:
         if id is None and name is None:
             raise ValueError('You must specify id or name.')
 
@@ -59,21 +60,21 @@ class DBWorker:
         try:
             dbquery = self._session.exec(statment).one()
         except NoResultFound:
-            result = UserListOut()
+            result = UserResponse()
         else:
-            result = UserListOut.from_orm(dbquery)
+            result = UserResponse.from_orm(dbquery)
             result.is_created = True
 
         return result
 
     def add_user(self,
-                 user: UserListIn):
+                 user: UserRegister):
         user_account = UserAccount(name=user.name,
-                                   login=user.login,
+                                   login=user.name,
                                    password=user.password,
-                                   is_deleted=user.is_deleted,
-                                   is_activated=user.is_activated,
-                                   auth_id=user.auth_id)
+                                   is_deleted=False,
+                                   is_activated=True,
+                                   auth_id="auth_id")
         with self._session as session:
             session.add(user_account)
         self._session.commit()
