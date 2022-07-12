@@ -1,13 +1,22 @@
 from enum import Enum
 
-from fastapi import FastAPI, Query, Cookie, status, HTTPException
+from fastapi import FastAPI, Query, status, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import MultipleResultsFound
 
 from src.db.worker import DBWorker
-from src.schemas.model import UserListIn, UserListOut
-from src.schemas.model import SupportForm
+from schemas.schemas import UserListIn, UserListOut
+from src.settings import ABOUT, origins
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 db = DBWorker()
 
@@ -73,29 +82,4 @@ async def add_user(item: UserListIn):
     Add new user.
     """
     db.add_user(item)
-    return item
-
-
-@app.get("/support/{item}",
-         tags=['support'])
-async def get_support(item: Model, id: int):
-    if item == Model.first and id <= 10:
-        return db.get_by_id(id)
-    elif item == Model.second and id <= 10:
-        return {"result": "Second model"}
-    else:
-        return {"result": f"ID must be <= 10, not={id}"}
-
-
-@app.post("/support/",
-          response_model=SupportForm,
-          status_code=status.HTTP_201_CREATED,
-          tags=['support'])
-async def post_support(item: SupportForm):
-    db.add(user_name=item.user_name,
-           date_time=item.date_time,
-           time_zone=item.time_zone,
-           email=item.email,
-           message=item.message,
-           importance=item.importance)
     return item
