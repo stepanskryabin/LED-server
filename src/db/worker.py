@@ -29,7 +29,7 @@ class DBWorker:
         self._sql.create_all(self._engine)
 
     def disconnect(self):
-        self._session.close_all()
+        self._session.close()
 
     def create_record(self):
         with self._session as session:
