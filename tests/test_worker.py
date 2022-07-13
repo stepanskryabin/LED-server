@@ -1,22 +1,18 @@
-import unittest
-
 from src.db.worker import DBWorker
 
 
-class TestDBWorker(unittest.TestCase):
-    def setUp(self) -> None:
-        self.db = DBWorker(db_name=':memory:')
-        self.db.connect()
+def db(id: int = None, name: str = None):
+    db = DBWorker(db_name=':memory:')
+    db.connect()
+    db.create_record()
+    query = db.get_user(_id=id, name=name)
+    db.disconnect()
+    return query
 
-    def tearDown(self) -> None:
-        self.db.disconnect()
+def test_get_by_name():
+    result = db(name="Peter")
+    assert result.is_created == True
 
-    def test_get_by_name(self):
-        self.db.create_record()
-        result = self.db.get_user(name="Peter")
-        self.assertTrue(result.is_created)
-
-    def test_get_by_id(self):
-        self.db.create_record()
-        result = self.db.get_user(_id=1)
-        self.assertTrue(result.is_created)
+def test_get_by_id():
+    result = db(id=1)
+    assert result.is_created == True
