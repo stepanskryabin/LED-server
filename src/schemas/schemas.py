@@ -74,20 +74,29 @@ class UserResponse(_UserName,
                    _UserLogin,
                    _UserEmail,
                    _UserIsDeleted,
+                   _UserIsActivated):
+    pass
+
+
+class UserCreate(_UserName,
+                 _UserLogin,
+                 _UserEmail,
+                 _UserPassword,
+                 _UserIsDeleted,
+                 _UserIsActivated):
+    pass
+
+
+class UserDBResult(_UserName,
+                   _UserLogin,
+                   _UserPassword,
+                   _UserEmail,
+                   _UserIsDeleted,
                    _UserIsActivated,
                    _UserIsCreated):
 
     class Config:
         orm_mode = True
-
-
-class UserRequest(_UserName,
-                   _UserLogin,
-                   _UserEmail,
-                   _UserIsDeleted,
-                   _UserIsActivated,
-                   _UserAuth):
-    pass
 
 
 class UserLogin(_UserName,
