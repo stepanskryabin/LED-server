@@ -5,10 +5,11 @@ from sqlmodel import select
 from sqlmodel import Session
 from sqlmodel import SQLModel
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import MultipleResultsFound
 
 from src.db.models import UserAccount
 from src.schemas.schemas import UserRegister
-from src.schemas.schemas import UserResponse
+from src.schemas.schemas import UserDBResult
 
 
 class DBWorker:
@@ -48,7 +49,7 @@ class DBWorker:
 
     def get_user(self,
                  _id: int = None,
-                 name: str = None) -> UserResponse:
+                 name: str = None) -> UserDBResult:
         if id is None and name is None:
             raise ValueError('You must specify id or name.')
 
@@ -60,9 +61,12 @@ class DBWorker:
         try:
             dbquery = self._session.exec(statment).one()
         except NoResultFound:
-            result = UserResponse()
+            result = UserDBResult()
+        except MultipleResultsFound:
+            result = UserDBResult.from_orm(self._session.exec(statment).first())
+            result.is_created = True
         else:
-            result = UserResponse.from_orm(dbquery)
+            result = UserDBResult.from_orm(dbquery)
             result.is_created = True
 
         return result
