@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.db.worker import DBWorker
-from src.settings import origins
+from src.core.settings import origins
 from src.routers.router import api_router
 
 
