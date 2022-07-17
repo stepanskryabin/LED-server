@@ -53,19 +53,28 @@ class TestSignin:
 
 
 class TestAdminPanel:
+    fixture_json = {"name": "PeterTheOne",
+                    "login": "peter_the_one",
+                    "password": "123456",
+                    "email": "peter@theone.rus",
+                    "is_deleted": False,
+                    "is_activated": True}
+
     def test_get_user_success(self):
         response = client.get("/admin/user", params={"username": "Peter"})
         assert response.status_code == 200
         # assert response.json() == {"code": 200, "detail": "User is created"}
 
+    def test_get_user_failrue_token(self):
+        response = client.get("/admin/user",
+                              params={"username": "Peter"},
+                              headers={"token": "wrong"})
+        assert response.status_code == 401
+
     def test_post_user_sucess(self):
         response = client.post("/admin/user",
-                               json={"name": "PeterTheOne",
-                                     "login": "peter_the_one",
-                                     "password": "123456",
-                                     "email": "peter@theone.rus",
-                                     "is_deleted": False,
-                                     "is_activated": True})
+                               json=self.fixture_json,
+                               headers={"token": "token"})
         assert response.status_code == 201
         assert response.json() == {"name": "PeterTheOne",
                                    "login": "peter_the_one",
@@ -75,11 +84,11 @@ class TestAdminPanel:
 
     @pytest.mark.skip(reason="Отсутствует функциональность.")
     def test_post_user_failrue(self):
-        response = client.post("/admin/user", json={"name": "Peter",
-                                                    "login": "peter_the_new",
-                                                    "password": "123456",
-                                                    "email": "peter@tsar.rus",
-                                                    "is_deleted": False,
-                                                    "is_activated": True,
-                                                    "auth_id": "auth_id"})
+        response = client.post("/admin/user", json=self.fixture_json)
         assert response.status_code == 200
+
+    def test_post_user_failrue_token(self):
+        response = client.post("/admin/user",
+                               json=self.fixture_json,
+                               headers={"token": "wrong"})
+        assert response.status_code == 401
