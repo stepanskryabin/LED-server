@@ -122,3 +122,9 @@ class ErrorResponse(_UserError):
 
 class InfoResponse(_UserError):
     pass
+
+
+######
+class Token(BaseModel):
+    access_token: str
+    token_type: str

@@ -14,7 +14,8 @@ def db():
 
 @pytest.fixture(scope="class")
 def headers() -> dict:
-    return {"token": "token"}
+    return {"token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJUZXN0IiwiZXhwIjoxNjU4MDczODIzfQ.dhr_mc-MxtjjN0F5g9i_S1yz4D-WuOqT3HGNROGIRxY"}
 
 
 @pytest.fixture(scope="class")

@@ -1,11 +1,11 @@
-import random
+# import random
 
 from sqlmodel import create_engine
 from sqlmodel import select
 from sqlmodel import Session
 from sqlmodel import SQLModel
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.exc import MultipleResultsFound
+# from sqlalchemy.exc import MultipleResultsFound
 
 from src.db.models import UserAccount
 from src.schemas.schemas import UserRegister
@@ -33,19 +33,20 @@ class DBWorker:
         self._session.close()
 
     def create_record(self):
-        with self._session as session:
-            user = UserAccount(name="Peter",
-                               login="".join(("Peter",
-                                             str(random.randint(0, 1000)))),
-                               email='peter@tsar.rus',
-                               password='123456',
-                               is_deleted=False,
-                               is_activated=True,
-                               auth_id='auth_id')
-            session.add(user)
-            session.commit()
-            session.refresh(user)
-            session.close()
+        pass
+        # with self._session as session:
+        #     user = UserAccount(name="Peter",
+        #                        login="".join(("Peter",
+        #                                      str(random.randint(0, 1000)))),
+        #                        email='peter@tsar.rus',
+        #                        password='123456',
+        #                        is_deleted=False,
+        #                        is_activated=True,
+        #                        auth_id='auth_id')
+        #     session.add(user)
+        #     session.commit()
+        #     session.refresh(user)
+        #     session.close()
 
     def get_user(self,
                  _id: int = None,
@@ -60,12 +61,9 @@ class DBWorker:
 
         stmnt = self._session.exec(statment)
         try:
-            dbquery = stmnt.one()
+            dbquery = stmnt.one_or_none()
         except NoResultFound:
             result = UserDBResult()
-        except MultipleResultsFound:
-            result = UserDBResult.from_orm(stmnt.first())
-            result.is_created = True
         else:
             result = UserDBResult.from_orm(dbquery)
             result.is_created = True
@@ -82,7 +80,12 @@ class DBWorker:
                                    auth_id="auth_id")
         with self._session as session:
             session.add(user_account)
-        self._session.commit()
+            self._session.commit()
+            session.refresh(user_account)
+            session.close()
 
     def __del__(self):
-        self._session.close()
+        try:
+            self._session.close()
+        except Exception:
+            pass

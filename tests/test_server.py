@@ -20,7 +20,7 @@ class TestMainPage:
 class TestLogin:
     def test_login_success(self):
         response = client.post("/auth/login",
-                               json={"name": "Peter",
+                               json={"name": "Test",
                                      "password": "123456"})
         assert response.status_code == 202
         assert response.json() == {"auth_id": "auth_id"}
@@ -30,10 +30,12 @@ class TestLogin:
                                json={"name": "Wrong",
                                      "password": "Wrong"})
         assert response.status_code == 401
-        assert response.json() == {"code": 401, "detail": "User is unknow"}
+        assert response.json() == {"code": 401,
+                                   "detail": "User is unknow"}
 
 
 class TestSignin:
+    # FIXME добавить заглушку на запись нового пользователя в БД
     def test_signin_success(self):
         response = client.post("/auth/signin",
                                json={"name": "NewPeter",
