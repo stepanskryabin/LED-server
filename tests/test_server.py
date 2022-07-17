@@ -53,15 +53,10 @@ class TestSignin:
 
 
 class TestAdminPanel:
-    fixture_json = {"name": "PeterTheOne",
-                    "login": "peter_the_one",
-                    "password": "123456",
-                    "email": "peter@theone.rus",
-                    "is_deleted": False,
-                    "is_activated": True}
-
-    def test_get_user_success(self):
-        response = client.get("/admin/user", params={"username": "Peter"})
+    def test_get_user_success(self, headers):
+        response = client.get("/admin/user",
+                              params={"username": "Peter"},
+                              headers=headers)
         assert response.status_code == 200
         # assert response.json() == {"code": 200, "detail": "User is created"}
 
@@ -71,10 +66,10 @@ class TestAdminPanel:
                               headers={"token": "wrong"})
         assert response.status_code == 401
 
-    def test_post_user_sucess(self):
+    def test_post_user_sucess(self, headers, json):
         response = client.post("/admin/user",
-                               json=self.fixture_json,
-                               headers={"token": "token"})
+                               json=json,
+                               headers=headers)
         assert response.status_code == 201
         assert response.json() == {"name": "PeterTheOne",
                                    "login": "peter_the_one",
@@ -83,12 +78,13 @@ class TestAdminPanel:
                                    "is_activated": True}
 
     @pytest.mark.skip(reason="Отсутствует функциональность.")
-    def test_post_user_failrue(self):
-        response = client.post("/admin/user", json=self.fixture_json)
+    def test_post_user_failrue(self, json):
+        response = client.post("/admin/user",
+                               json=json)
         assert response.status_code == 200
 
-    def test_post_user_failrue_token(self):
+    def test_post_user_failrue_token(self, json):
         response = client.post("/admin/user",
-                               json=self.fixture_json,
+                               json=json,
                                headers={"token": "wrong"})
         assert response.status_code == 401
