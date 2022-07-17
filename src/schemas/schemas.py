@@ -5,10 +5,12 @@ from pydantic import EmailStr
 
 __all__ = ("User",
            "UserResponse",
-           "UserRequest",
+           "UserCreate",
+           "UserDBResult",
            "UserLogin",
            "UserRegister",
-           "UserError",
+           "UserAuth",
+           "ErrorResponse",
            "InfoResponse")
 
 
@@ -53,11 +55,11 @@ class _UserIsActivated(BaseModel):
 
 class _UserIsCreated(BaseModel):
     is_created: bool = Field(default=False,
-                               title="create or not")
+                             title="create or not")
 
 
 class _UserError(BaseModel):
-    code: int =Field(default=None, title="Status code")
+    code: int = Field(default=None, title="Status code")
     detail: str = Field(default=None, title="Message text")
 
 
@@ -108,6 +110,7 @@ class UserRegister(_UserName,
                    _UserPassword,
                    _UserEmail):
     pass
+
 
 class UserAuth(_UserAuth):
     pass

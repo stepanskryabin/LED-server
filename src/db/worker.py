@@ -58,12 +58,13 @@ class DBWorker:
         else:
             statment = select(UserAccount).where(UserAccount.id == _id)
 
+        stmnt = self._session.exec(statment)
         try:
-            dbquery = self._session.exec(statment).one()
+            dbquery = stmnt.one()
         except NoResultFound:
             result = UserDBResult()
         except MultipleResultsFound:
-            result = UserDBResult.from_orm(self._session.exec(statment).first())
+            result = UserDBResult.from_orm(stmnt.first())
             result.is_created = True
         else:
             result = UserDBResult.from_orm(dbquery)
