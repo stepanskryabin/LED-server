@@ -3,7 +3,7 @@ from fastapi import Response
 import pytest
 
 from src.db.worker import DBWorker
-from src.schemas.schemas import UserLogin, UserRegister
+from src.schemas.schemas import UserCreate, UserLogin, UserRegister
 from src.schemas.schemas import Token
 
 
@@ -56,3 +56,13 @@ def fx_str_token() -> str:
 def fx_user() -> UserLogin:
     return UserLogin(name="Test",
                      password="Test")
+
+
+@pytest.fixture(scope='class')
+def fx_user_create() -> UserCreate:
+    return UserCreate(name="PeterTheTwo",
+                      login="PeterTheTwo",
+                      email="peter@test.ru",
+                      password="Test",
+                      is_deleted=False,
+                      is_activated=True)
