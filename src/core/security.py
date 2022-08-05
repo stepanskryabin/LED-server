@@ -22,8 +22,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def verify_password(plain_password, hashed_password):
-    return True
-    # return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
@@ -37,15 +36,17 @@ def authenticate_user(username: str,
     if user.name is None:
         return False
 
-    if not verify_password(password, user.password):
+    if verify_password(password, user.password) is False:
         return False
 
     return user
 
 
 def create_access_token(data: dict,
-                        expires_delta: timedelta = None) -> Any:
+                        expires_delta: int | timedelta = None) -> str:
     to_encode = data.copy()
+    if isinstance(expires_delta, int):
+        expires_delta = timedelta(minutes=expires_delta)
 
     if expires_delta:
         expire = datetime.utcnow() + expires_delta

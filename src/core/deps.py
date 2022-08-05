@@ -37,15 +37,15 @@ def check_auth_token(token: str = Header()) -> None:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:
-        raise CredentialsError
+        raise CredentialsError(detail="JWTError")
     else:
         username = payload.get("sub")
         if username is None:
-            raise CredentialsError
+            raise CredentialsError(detail="username error")
 
     user = db.get_user(name=username)
     if user.name is None:
-        raise CredentialsError
+        raise CredentialsError(detail="db user error")
 
     if not user.is_activated:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,

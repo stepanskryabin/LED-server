@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi import APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.db.worker import DBWorker
@@ -8,8 +7,6 @@ from src.routers.router import api_router
 
 
 app = FastAPI()
-
-router = APIRouter()
 
 db = DBWorker()
 
@@ -28,7 +25,7 @@ app.include_router(api_router)
 @app.on_event("startup")
 def on_startup():
     db.connect()
-    db.create_record()
+    # db.create_record()
 
 
 @app.on_event("shutdown")
