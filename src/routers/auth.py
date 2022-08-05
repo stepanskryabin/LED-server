@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.db.worker import DBWorker
+from src.core.deps import get_auth_token
 from src.core.security import authenticate_user
 from src.core.security import create_access_token
 from src.core.security import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -23,18 +24,25 @@ router = APIRouter()
 db = DBWorker()
 
 
+def check_password(login_password, db_password) -> bool:
+    return login_password == db_password
+
+
 @router.post("/login",
              status_code=status.HTTP_202_ACCEPTED,
              responses={401: {"model": ErrorResponse}},
              tags=['Auth'],
              description="The authorization procedure in the application.")
-async def login(user: UserLogin, response: Response):
+async def login(user: UserLogin,
+                response: Response):
     """
     The user login procedure for the application.
     """
-    password = db.get_user(name=user.name).password
-    if user.password == password:
-        return UserAuth(auth_id="auth_id")
+
+    db_user = db.get_user(name=user.name)
+    if check_password(user.password, db_user.password):
+        token = get_auth_token(user)
+        return UserAuth(auth_id=token)
     else:
         response.status_code = code = status.HTTP_401_UNAUTHORIZED
         return ErrorResponse(code=code, detail="User is unknow")
@@ -54,8 +62,8 @@ async def signin(new_user: UserRegister, response: Response):
         db.add_user(new_user)
     except Exception:
         response.status_code = code = status.HTTP_409_CONFLICT
-        raise ErrorResponse(code=code,
-                            detail="Unknow error")
+        return ErrorResponse(code=code,
+                             detail="Unknow error")
     else:
         return InfoResponse(code=status.HTTP_201_CREATED,
                             detail="User is created")
@@ -75,4 +83,5 @@ async def login_for_access_token(data: OAuth2PasswordRequestForm = Depends()):
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.name},
                                        expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token,
+                 token_type="bearer")
