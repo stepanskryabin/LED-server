@@ -11,4 +11,4 @@ class UserAccount(SQLModel, table=True):
     password: str
     is_deleted: bool
     is_activated: bool
-    auth_id: str
+    auth_id: str = Field(default=None)

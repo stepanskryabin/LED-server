@@ -1,11 +1,9 @@
-# import random
-
 from sqlmodel import create_engine
 from sqlmodel import select
 from sqlmodel import Session
 from sqlmodel import SQLModel
 from sqlalchemy.exc import NoResultFound
-# from sqlalchemy.exc import MultipleResultsFound
+from sqlalchemy.exc import MultipleResultsFound
 
 from src.db.models import UserAccount
 from src.schemas.schemas import UserRegister
@@ -29,24 +27,11 @@ class DBWorker:
     def connect(self):
         self._sql.create_all(self._engine)
 
+    def clear(self):
+        self._sql.clear()
+
     def disconnect(self):
         self._session.close()
-
-    def create_record(self):
-        pass
-        # with self._session as session:
-        #     user = UserAccount(name="Peter",
-        #                        login="".join(("Peter",
-        #                                      str(random.randint(0, 1000)))),
-        #                        email='peter@tsar.rus',
-        #                        password='123456',
-        #                        is_deleted=False,
-        #                        is_activated=True,
-        #                        auth_id='auth_id')
-        #     session.add(user)
-        #     session.commit()
-        #     session.refresh(user)
-        #     session.close()
 
     def get_user(self,
                  _id: int = None,
@@ -59,10 +44,10 @@ class DBWorker:
         else:
             statment = select(UserAccount).where(UserAccount.id == _id)
 
-        stmnt = self._session.exec(statment)
         try:
-            dbquery = stmnt.one_or_none()
-        except NoResultFound:
+            stmnt = self._session.exec(statment)
+            dbquery = stmnt.one()
+        except (NoResultFound, MultipleResultsFound):
             result = UserDBResult()
         else:
             result = UserDBResult.from_orm(dbquery)
@@ -77,7 +62,7 @@ class DBWorker:
                                    password=user.password,
                                    is_deleted=False,
                                    is_activated=True,
-                                   auth_id="auth_id")
+                                   auth_id=None)
         with self._session as session:
             session.add(user_account)
             self._session.commit()
